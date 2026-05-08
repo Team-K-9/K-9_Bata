@@ -1,16 +1,44 @@
-# React + Vite
+# K-9 UI プロトタイプ
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+このプロジェクトは React + Vite で構築された K-9 プロジェクト用のフロントエンド（UI）プロトタイプです。
 
-Currently, two official plugins are available:
+## 🚀 開発環境のセットアップと動かし方
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+### 1. 前提条件
+お使いのマシンに [Node.js](https://nodejs.org/) (推奨: v18以上) がインストールされている必要があります。
 
-## React Compiler
+### 2. パッケージのインストール
+プロジェクトのルートディレクトリ（このREADMEがあるフォルダ）で以下のコマンドを実行し、必要なパッケージをインストールします。
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+npm install
+```
 
-## Expanding the ESLint configuration
+### 3. 開発用サーバーの起動
+以下のコマンドを実行すると、ローカル開発サーバーが起動します。
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+npm run dev
+```
+
+コマンド実行後、ターミナルに表示されるURL（通常は `http://localhost:5173/`）にブラウザでアクセスすると、UIを確認できます。
+ファイルを編集して保存すると、自動的にブラウザの表示が更新されます（ホットリロード）。
+
+## 📦 ビルド方法（デプロイ用）
+
+本番用の最適化されたファイルを出力する場合は、以下のコマンドを実行します。
+
+```bash
+npm run build
+```
+
+`dist` フォルダが作成され、デプロイ用の静的ファイルが生成されます。
+生成されたファイルをローカルでプレビューしたい場合は、以下のコマンドを実行してください。
+
+```bash
+npm run preview
+```
+
+## 🛠️ 技術スタック
+- **React**: UIライブラリ
+- **Vite**: 高速なビルドツール・開発サーバー
