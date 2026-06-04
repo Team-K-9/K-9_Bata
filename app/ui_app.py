@@ -585,17 +585,26 @@ with st.sidebar:
             "auto": "自動",
             "cpu": "CPU",
             "cuda": "GPU (CUDA)" + (" (非対応)" if not device_statuses["cuda"] else ""),
+            "xpu": "GPU (Intel XPU)" + (" (非対応)" if not device_statuses["xpu"] else ""),
             "npu": "NPU" + (" (非対応)" if not device_statuses["npu"] else ""),
         }
+        device_options = ["auto", "cpu", "cuda", "xpu", "npu"]
+        selected_device = (s().device or "auto").lower()
+        if selected_device == "gpu":
+            selected_device = "cuda"
+        if selected_device not in device_options:
+            selected_device = "auto"
         s().device = st.selectbox(
             "推論デバイス",
-            ["auto", "cpu", "cuda", "npu"],
-            index=["auto", "cpu", "cuda", "npu"].index(s().device if s().device else "auto"),
+            device_options,
+            index=device_options.index(selected_device),
             format_func=lambda value: device_labels[value],
         )
         unavailable_labels = []
         if not device_statuses["cuda"]:
             unavailable_labels.append("GPU (CUDA) はこの環境では非対応")
+        if not device_statuses["xpu"]:
+            unavailable_labels.append("GPU (Intel XPU) はこの環境では非対応")
         if not device_statuses["npu"]:
             unavailable_labels.append("NPU はこの環境では非対応")
         if unavailable_labels:
@@ -739,13 +748,18 @@ with status_right:
             with progress_box.container():
                 render_progress_panel("手動更新の進捗", current, total, path, stage)
 
-        indexed, skipped, chunks, removed, note = auto_index_manager.run_now(
-            s(),
-            "manual",
-            progress_callback=update_progress,
-        )
-        progress_box.empty()
-        st.success(
+        try:
+            indexed, skipped, chunks, removed, note = auto_index_manager.run_now(
+                s(),
+                "manual",
+                progress_callback=update_progress,
+            )
+        except Exception as exc:
+            progress_box.empty()
+            st.error(f"手動更新に失敗しました: {exc}")
+        else:
+            progress_box.empty()
+            st.success(
             f"更新完了：索引化 {indexed} 件 / スキップ {skipped} 件 / "
             f"追加チャンク {chunks} 件 / 削除 {removed} 件（{note}）"
         )

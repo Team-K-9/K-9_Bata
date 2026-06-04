@@ -340,6 +340,7 @@ class CoreHelpersTest(unittest.TestCase):
 
     def test_resolve_embedder_spec_uses_cuda_for_gpu_when_available(self):
         with patch("app.core.detect_torch_cuda_available", return_value=True), \
+            patch("app.core.detect_torch_xpu_available", return_value=False), \
             patch("app.core.detect_torch_npu_device", return_value=None), \
             patch("app.core.find_onnx_model_path", return_value=None):
             spec = resolve_embedder_spec("cuda", "E:/models/bge")
@@ -348,9 +349,21 @@ class CoreHelpersTest(unittest.TestCase):
         self.assertEqual(spec.resolved_device, "gpu")
         self.assertEqual(spec.torch_device, "cuda")
 
+    def test_resolve_embedder_spec_uses_xpu_for_intel_gpu_when_available(self):
+        with patch("app.core.detect_torch_cuda_available", return_value=False), \
+            patch("app.core.detect_torch_xpu_available", return_value=True), \
+            patch("app.core.detect_torch_npu_device", return_value=None), \
+            patch("app.core.find_onnx_model_path", return_value=None):
+            spec = resolve_embedder_spec("xpu", "E:/models/bge")
+
+        self.assertEqual(spec.backend, "torch")
+        self.assertEqual(spec.resolved_device, "gpu")
+        self.assertEqual(spec.torch_device, "xpu")
+
     def test_resolve_embedder_spec_uses_onnx_for_npu_when_provider_available(self):
         onnx_path = Path("E:/models/bge/onnx/model.onnx")
         with patch("app.core.detect_torch_cuda_available", return_value=False), \
+            patch("app.core.detect_torch_xpu_available", return_value=False), \
             patch("app.core.detect_torch_npu_device", return_value=None), \
             patch("app.core.find_onnx_model_path", return_value=onnx_path), \
             patch("app.core.get_available_onnx_providers", return_value=["CPUExecutionProvider", "QNNExecutionProvider"]):
@@ -363,6 +376,7 @@ class CoreHelpersTest(unittest.TestCase):
 
     def test_resolve_embedder_spec_falls_back_to_cpu_when_npu_unavailable(self):
         with patch("app.core.detect_torch_cuda_available", return_value=False), \
+            patch("app.core.detect_torch_xpu_available", return_value=False), \
             patch("app.core.detect_torch_npu_device", return_value=None), \
             patch("app.core.find_onnx_model_path", return_value=None):
             spec = resolve_embedder_spec("npu", "E:/models/bge")
